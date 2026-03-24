@@ -1,32 +1,40 @@
 using DeviceManagement.Api.Domain.Entities;
 using DeviceManagement.Api.Domain.Enums;
+using DeviceManagement.Api.Infrastructure.Persistence;
 using DeviceManagement.Api.Infrastructure.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace DeviceManagement.Api.Infrastructure.Repositories;
 
 public class DeviceRepository : IDeviceRepository
 {
-    private static readonly List<Device> Devices = new List<Device>();
+    private readonly AppDbContext _dbContext;
 
-    public Task<Device> AddAsync(Device device)
+    public DeviceRepository(AppDbContext dbContext)
     {
-        Devices.Add(device);
-        return Task.FromResult(device);
+        _dbContext = dbContext;
     }
 
-    public Task<Device?> GetByIdAsync(Guid id)
+    public async Task<Device> AddAsync(Device device)
     {
-        var device = Devices.FirstOrDefault(d => d.Id == id);
-        return Task.FromResult(device);
+        await _dbContext.Devices.AddAsync(device);
+        await _dbContext.SaveChangesAsync();
+
+        return device;
     }
 
-    public Task<IEnumerable<Device>> GetAllAsync(string? brand, DeviceState? state)
+    public async Task<Device?> GetByIdAsync(Guid id)
     {
-        IEnumerable<Device> query = Devices;
+        return await _dbContext.Devices.FirstOrDefaultAsync(d => d.Id == id);
+    }
+
+    public async Task<IEnumerable<Device>> GetAllAsync(string? brand, DeviceState? state)
+    {
+        IQueryable<Device> query = _dbContext.Devices.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(brand))
         {
-            query = query.Where(d => d.Brand.Equals(brand, StringComparison.OrdinalIgnoreCase));
+            query = query.Where(d => d.Brand == brand);
         }
 
         if (state.HasValue)
@@ -34,17 +42,18 @@ public class DeviceRepository : IDeviceRepository
             query = query.Where(d => d.State == state.Value);
         }
 
-        return Task.FromResult(query);
+        return await query.ToListAsync();
     }
 
-    public Task UpdateAsync(Device device)
+    public async Task UpdateAsync(Device device)
     {
-        return Task.CompletedTask;
+        _dbContext.Devices.Update(device);
+        await _dbContext.SaveChangesAsync();
     }
 
-    public Task DeleteAsync(Device device)
+    public async Task DeleteAsync(Device device)
     {
-        Devices.Remove(device);
-        return Task.CompletedTask;
+        _dbContext.Devices.Remove(device);
+        await _dbContext.SaveChangesAsync();
     }
 }
