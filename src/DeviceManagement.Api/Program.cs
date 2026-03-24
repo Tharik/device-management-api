@@ -2,6 +2,7 @@ using DeviceManagement.Api.Application.Interfaces;
 using DeviceManagement.Api.Application.Services;
 using DeviceManagement.Api.Infrastructure.Repositories;
 using DeviceManagement.Api.Infrastructure.Repositories.Interfaces;
+using DeviceManagement.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,8 @@ builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
