@@ -205,7 +205,7 @@ This project includes a `device-management-tests.http` file with test scenarios.
 
 1. Start the API  
 2. Open the `.http` file in VS Code (REST Client) or JetBrains IDE  
-3. Update the `@host` if needed  
+3. Update the `@host`, `@availableDeviceId` and, `@inUseDeviceId` if needed
 4. Execute requests in order  
 5. Copy IDs between requests when required  
 
