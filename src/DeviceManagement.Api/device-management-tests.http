@@ -1,0 +1,196 @@
+@host = http://localhost:8080
+@contentType = application/json
+
+###
+# Device Management API - manual test collection
+# How to use:
+# 1) Start the API and open this file in VS Code / Rider / IntelliJ HTTP Client.
+# 2) Run requests in order.
+# 3) After each create, copy the returned id and replace the variables below.
+# 4) For PATCH, keep only the fields your API accepts in PatchDeviceRequest.
+# 5) Adjust the port if your API is not running on 8080.
+
+@availableDeviceId = 658f9d70-f5e8-48d4-84f6-e8f0892ddfe9
+@inUseDeviceId = c01aa3e0-2d5a-4a70-a395-cf5c4d469e2e
+@missingId = 11111111-1111-1111-1111-111111111111
+
+### 1) CREATE - valid Available device
+# Expected:
+# - 201 Created (preferred) or 200 OK
+# - Response should contain id, name, brand, state, createdAt
+POST {{host}}/api/devices
+Content-Type: {{contentType}}
+
+{
+  "name": "iPhone 15 Pro",
+  "brand": "Apple",
+  "state": 1
+}
+
+### 2) CREATE - valid InUse device
+# Expected:
+# - 201 Created (preferred) or 200 OK
+# - Copy returned id into @inUseDeviceId
+POST {{host}}/api/devices
+Content-Type: {{contentType}}
+
+{
+  "name": "Galaxy S24",
+  "brand": "Samsung",
+  "state": 2
+}
+
+### 3) GET ALL
+# Expected:
+# - 200 OK
+# - List should include the devices created above
+GET {{host}}/api/devices
+
+### 4) GET BY ID - valid Available device
+# Expected:
+# - 200 OK
+GET {{host}}/api/devices/{{availableDeviceId}}
+
+### 5) GET BY ID - missing id
+# Expected:
+# - 404 Not Found
+GET {{host}}/api/devices/{{missingId}}
+
+### 6) GET BY BRAND - valid
+# Adjust route if your API uses query string instead.
+# Expected:
+# - 200 OK
+# - Result should include Apple devices only
+GET {{host}}/api/devices?brand=Apple
+
+### 7) GET BY BRAND - no results TODO: Verify this one
+# Expected:
+# - 200 OK
+# - Empty list
+GET {{host}}/api/devices?brand=Nokia
+
+### 8) GET BY STATE - InUse TODO: Verify this one
+# Adjust route if your API uses query string instead.
+# Expected:
+# - 200 OK
+# - Result should include the Samsung InUse device
+GET {{host}}/api/devices?state=2
+
+### 9) PUT - valid full update on non-InUse device
+# Expected:
+# - 200 OK or 204 No Content
+# - createdAt must remain unchanged
+PUT {{host}}/api/devices/{{availableDeviceId}}
+Content-Type: {{contentType}}
+
+{
+  "name": "iPhone 15 Pro Max",
+  "brand": "Apple",
+  "state": 3
+}
+
+### 10) PUT - invalid update on InUse device
+# Business rule:
+# - Name and Brand cannot be changed when device is InUse
+# Expected:
+# - 400 Bad Request or 409 Conflict
+PUT {{host}}/api/devices/{{inUseDeviceId}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Galaxy S24 Ultra",
+  "brand": "Samsung Premium",
+  "state": 2
+}
+
+### 11) PATCH - valid partial update on non-InUse device
+# Keep only fields supported by your PatchDeviceRequest.
+# Expected:
+# - 200 OK or 204 No Content
+PATCH {{host}}/api/devices/{{availableDeviceId}}
+Content-Type: {{contentType}}
+
+{
+  "state": 1
+}
+
+### 12) PATCH - invalid partial update on InUse device
+# Business rule:
+# - Name and Brand cannot be changed when device is InUse
+# Expected:
+# - 400 Bad Request or 409 Conflict
+PATCH {{host}}/api/devices/{{inUseDeviceId}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Galaxy Forbidden Change"
+}
+
+### 13) DELETE - valid on non-InUse device
+# Expected:
+# - 204 No Content (preferred) or 200 OK
+DELETE {{host}}/api/devices/{{availableDeviceId}}
+
+### 14) DELETE - invalid on InUse device
+# Business rule:
+# - InUse device cannot be deleted
+# Expected:
+# - 400 Bad Request or 409 Conflict
+DELETE {{host}}/api/devices/{{inUseDeviceId}}
+
+### 15) PUT - missing id
+# Expected:
+# - 404 Not Found
+PUT {{host}}/api/devices/{{missingId}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Ghost Device",
+  "brand": "Ghost Brand",
+  "state": 1
+}
+
+### 16) PATCH - missing id
+# Expected:
+# - 404 Not Found
+PATCH {{host}}/api/devices/{{missingId}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Ghost Patch"
+}
+
+### 17) DELETE - missing id
+# Expected:
+# - 404 Not Found
+DELETE {{host}}/api/devices/{{missingId}}
+
+### 18) POST - invalid create (empty name)
+# Useful only after DTO validation is added.
+# Expected:
+# - 400 Bad Request
+POST {{host}}/api/devices
+Content-Type: {{contentType}}
+
+{
+  "name": "",
+  "brand": "Apple",
+  "state": 1
+}
+
+### 19) POST - invalid create (empty brand)
+# Useful only after DTO validation is added.
+# Expected:
+# - 400 Bad Request
+POST {{host}}/api/devices
+Content-Type: {{contentType}}
+
+{
+  "name": "Pixel 9",
+  "brand": "",
+  "state": 1
+}
+
+### 20) MySQL persistence check (manual)
+# After running the requests above, confirm persistence directly in MySQL:
+# SELECT id, name, brand, state, created_at FROM devices;

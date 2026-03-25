@@ -13,5 +13,18 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
+  api:
+    build:
+      context: .
+      dockerfile: src/DeviceManagement.Api/Dockerfile
+    container_name: device-management-api
+    depends_on:
+      - mysql
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: server=mysql;port=3306;database=device_management;user=root;password=root
+    ports:
+      - "8080:8080"
+
 volumes:
   mysql_data:
