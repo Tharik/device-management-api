@@ -194,7 +194,7 @@ tests/
 - Add CI pipeline (build + test)  
 - Improve error response standardization  
 - Enhance API documentation by explicitly declaring all error responses (400, 404, 409, etc.), since they are currently handled via middleware but not fully represented in the OpenAPI specification
-- Move database connection string to environment variables to support containerized environments (e.g., Docker) and avoid hardcoded configuration in the application
+- Externalize the database connection string via environment variables (currently defined in `appsettings`) to improve flexibility and support containerized deployments (e.g., Docker)
 
 
 ## 🧪 Manual API Testing (.http)
