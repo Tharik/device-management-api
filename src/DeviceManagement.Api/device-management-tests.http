@@ -10,7 +10,7 @@
 # 4) For PATCH, keep only the fields your API accepts in PatchDeviceRequest.
 # 5) Adjust the port if your API is not running on 8080.
 
-@availableDeviceId = 658f9d70-f5e8-48d4-84f6-e8f0892ddfe9
+@availableDeviceId = 06dfb8dc-d4af-439f-bfca-081dae29226f
 @inUseDeviceId = c01aa3e0-2d5a-4a70-a395-cf5c4d469e2e
 @missingId = 11111111-1111-1111-1111-111111111111
 
@@ -35,7 +35,7 @@ POST {{host}}/api/devices
 Content-Type: {{contentType}}
 
 {
-  "name": "Galaxy S24",
+  "name": "Galaxy S24 X",
   "brand": "Samsung",
   "state": 2
 }
@@ -63,13 +63,13 @@ GET {{host}}/api/devices/{{missingId}}
 # - Result should include Apple devices only
 GET {{host}}/api/devices?brand=Apple
 
-### 7) GET BY BRAND - no results TODO: Verify this one
+### 7) GET BY BRAND - no results
 # Expected:
 # - 200 OK
 # - Empty list
 GET {{host}}/api/devices?brand=Nokia
 
-### 8) GET BY STATE - InUse TODO: Verify this one
+### 8) GET BY STATE - InUse
 # Adjust route if your API uses query string instead.
 # Expected:
 # - 200 OK
@@ -191,6 +191,44 @@ Content-Type: {{contentType}}
   "state": 1
 }
 
-### 20) MySQL persistence check (manual)
-# After running the requests above, confirm persistence directly in MySQL:
+### 20) VERIFY CREATED_AT IS NOT MODIFIED ON UPDATE #########
+# Steps:
+# 1. Run GET BY ID and copy createdAt value
+# 2. Run PUT update
+# 3. Run GET BY ID again and compare createdAt
+# Expected:
+# - createdAt must remain exactly the same
+
+### Step 1 - GET BEFORE UPDATE
+GET {{host}}/api/devices/{{availableDeviceId}}
+
+### Step 2 - UPDATE DEVICE
+PUT {{host}}/api/devices/{{availableDeviceId}}
+Content-Type: application/json
+
+{
+  "name": "iPhone 15 Pro Max Updated",
+  "brand": "Apple",
+  "state": 3
+}
+
+### Step 3 - GET AFTER UPDATE
+GET {{host}}/api/devices/{{availableDeviceId}}
+
+### 21) VERIFY DATA PERSISTENCE IN MYSQL #########
+# This step is manual (outside HTTP file)
+# Expected:
+# - All created devices exist in database
+# - Updated fields are persisted
+# - Deleted devices are removed
+# - InUse devices blocked from deletion still exist
+
+# Instructions:
+# 1. Open terminal
+# 2. Access MySQL container:
+#    docker exec -it <mysql-container-name> mysql -u root -p
+# 3. Select database:
+#    USE devicedb;
+# 4. Run query:
+
 # SELECT id, name, brand, state, created_at FROM devices;
