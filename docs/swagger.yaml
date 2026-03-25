@@ -1,0 +1,174 @@
+openapi: 3.0.4
+info:
+  title: DeviceManagement.Api
+  version: "1.0"
+paths:
+  /api/Devices:
+    post:
+      tags:
+        - Devices
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDeviceRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/CreateDeviceRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/CreateDeviceRequest"
+      responses:
+        "200":
+          description: OK
+    get:
+      tags:
+        - Devices
+      parameters:
+        - name: brand
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            $ref: "#/components/schemas/DeviceState"
+      responses:
+        "200":
+          description: OK
+  /api/Devices/{id}:
+    get:
+      tags:
+        - Devices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+    put:
+      tags:
+        - Devices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDeviceRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDeviceRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/UpdateDeviceRequest"
+      responses:
+        "200":
+          description: OK
+    patch:
+      tags:
+        - Devices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchDeviceRequest"
+          text/json:
+            schema:
+              $ref: "#/components/schemas/PatchDeviceRequest"
+          application/*+json:
+            schema:
+              $ref: "#/components/schemas/PatchDeviceRequest"
+      responses:
+        "200":
+          description: OK
+    delete:
+      tags:
+        - Devices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+components:
+  schemas:
+    CreateDeviceRequest:
+      required:
+        - brand
+        - name
+        - state
+      type: object
+      properties:
+        name:
+          maxLength: 100
+          minLength: 1
+          type: string
+        brand:
+          maxLength: 100
+          minLength: 1
+          type: string
+        state:
+          $ref: "#/components/schemas/DeviceState"
+      additionalProperties: false
+    DeviceState:
+      enum:
+        - 1
+        - 2
+        - 3
+      type: integer
+      format: int32
+    PatchDeviceRequest:
+      type: object
+      properties:
+        name:
+          maxLength: 100
+          type: string
+          nullable: true
+        brand:
+          maxLength: 100
+          type: string
+          nullable: true
+        state:
+          $ref: "#/components/schemas/DeviceState"
+      additionalProperties: false
+    UpdateDeviceRequest:
+      required:
+        - brand
+        - name
+        - state
+      type: object
+      properties:
+        name:
+          maxLength: 100
+          minLength: 1
+          type: string
+        brand:
+          maxLength: 100
+          minLength: 1
+          type: string
+        state:
+          $ref: "#/components/schemas/DeviceState"
+      additionalProperties: false
+tags:
+  - name: Devices

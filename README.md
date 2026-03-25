@@ -193,6 +193,7 @@ tests/
 - Introduce pagination, sorting, and filtering  
 - Add CI pipeline (build + test)  
 - Improve error response standardization  
+- Enhance API documentation by explicitly declaring all error responses (400, 404, 409, etc.), since they are currently handled via middleware but not fully represented in the OpenAPI specification
 
 
 ## 🧪 Manual API Testing (.http)
