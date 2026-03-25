@@ -6,12 +6,12 @@ namespace DeviceManagement.Api.Contracts.Requests;
 public class UpdateDeviceRequest
 {
     [Required]
-    [MaxLength(100)]
-    public string Name { get; set; } = string.Empty;
+    [StringLength(100, MinimumLength = 1)]
+    public string Name { get; set; } = default!;
 
     [Required]
-    [MaxLength(100)]
-    public string Brand { get; set; } = string.Empty;
+    [StringLength(100, MinimumLength = 1)]
+    public string Brand { get; set; } = default!;
 
     [Required]
     [EnumDataType(typeof(DeviceState))]

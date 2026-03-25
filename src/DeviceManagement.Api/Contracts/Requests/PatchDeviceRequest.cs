@@ -5,10 +5,10 @@ namespace DeviceManagement.Api.Contracts.Requests;
 
 public class PatchDeviceRequest
 {
-    [MaxLength(100)]
+    [StringLength(100, MinimumLength = 1)]
     public string? Name { get; set; }
 
-    [MaxLength(100)]
+    [StringLength(100, MinimumLength = 1)]
     public string? Brand { get; set; }
 
     [EnumDataType(typeof(DeviceState))]
